@@ -1,8 +1,10 @@
 #ifndef PHASESHIFTPROCESS_H
 #define PHASESHIFTPROCESS_H
 
+#include <iostream>
 #include "opencv2/highgui.hpp"
 #include "opencv2/core.hpp"
+#include "algorithm"
 
 using namespace std;
 using namespace cv;
@@ -25,6 +27,16 @@ public:
     void phaseUnwrapped();
     void convertDepth();
 
+    void computeQualityMap();
+
+    float getIntensity(Vec3b phi);
+
+protected:
+    float sqdist(float v1, float v2)
+    {
+        return 1 - pow((v1 - v2), 2);
+    }
+
 private:
     Mat imgPhase1;
     Mat imgPhase2;
@@ -35,11 +47,11 @@ private:
 
     // some helper matrices to track phase quality and
     // processing state (each from the same dimension as the input image)
-    bool  *mask;
-    bool  *process;
-    float *quality;
-    float *range;
-    float *depth;
+    Mat  mask;
+    Mat  process;
+    Mat quality;
+    Mat range;
+    float depth;
     float noiseThreshold;
     float zscale;
     float zskew;
