@@ -28,13 +28,19 @@ public:
     void convertDepth();
 
     void computeQualityMap();
-
+    void computeQuality_Zhang();
     float getIntensity(Vec3b phi);
 
+//    void phaseUnwrap();
+//    void phaseUnwrap(int x, int y, float phi, float q);
+    void unwrapPhase();
+
 protected:
+
     float sqdist(float v1, float v2)
     {
-        return 1 - pow((v1 - v2), 2);
+        float d = v1 - v2;
+        return 1.f - d*d;
     }
 
 private:

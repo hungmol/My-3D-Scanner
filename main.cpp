@@ -18,6 +18,7 @@ int main()
     PhaseShiftProcess ps(img1, img2, img3);
     ps.phaseDecode();
     ps.computeQualityMap();
+    ps.unwrapPhase();
     cvWaitKey(0);
 
     return 0;

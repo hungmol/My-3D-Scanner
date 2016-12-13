@@ -14,7 +14,7 @@ LIBS += -lopencv_highgui -lopencv_core -lopencv_core -lopencv_features2d \
         -lopencv_photo -lopencv_shape -lopencv_superres -lopencv_stitching
 
 SOURCES += main.cpp \
-    PhaseShiftSrocess.cpp
+    PhaseShiftProcess.cpp
 
 HEADERS += \
-    PhaseShiftSrocess.h
+    PhaseShiftProcess.h
