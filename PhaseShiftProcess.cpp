@@ -120,7 +120,6 @@ void PhaseShiftProcess::computeQualityMap()
                     sqdist(phi_center,phi_left)+
                     sqdist(phi_center, phi_right)+
                     sqdist(phi_center, phi_behind);
-
             quality.at<float>(Point(j, i)) /= range.at<float>(Point(j, i));
         }
     }
@@ -151,7 +150,7 @@ void PhaseShiftProcess::computeQuality_Zhang()
 
             float delta = 0.25*(abs(phi_center - phi_left) + abs(phi_center - phi_right)
                                 + abs(phi_center - phi_above) + abs(phi_center - phi_behind));
-            quality.at<float>(Point(j, i)) = 1 - delta;
+            quality.at<float>(Point(j, i)) = 1 - delta/(2*PI);
         }
     }
 
@@ -161,30 +160,19 @@ void PhaseShiftProcess::computeQuality_Zhang()
 }
 
 void PhaseShiftProcess::unwrapPhase()
-{
-    for (int i = 1; i < height-1; i++)
-    {
-        for (int j = 1; j < width-1; j++)
-        {
-            if (imgWrappedPhase.at<float>(Point(j, i)) - imgWrappedPhase.at<float>(Point(j ,i - 1)) > PI)
-            {
-                imgUnwrappedPhase.at<float>(Point(j, i)) = imgWrappedPhase.at<float>(Point(j, i)) - 2*PI;
-            }
-
-            else if (imgWrappedPhase.at<float>(Point(j, i)) - imgWrappedPhase.at<float>(Point(j, i - 1)) < -PI)
-            {
-                imgUnwrappedPhase.at<float>(Point(j, i)) = imgWrappedPhase.at<float>(Point(j, i)) + 2*PI;
-            }
-
-            else
-            {
-                imgUnwrappedPhase.at<float>(Point(j, i)) = imgWrappedPhase.at<float>(Point(j, i));
-            }
-        }
-    }
-
-    Mat output;
-    cv::normalize(imgUnwrappedPhase, output,255, 0, NORM_MINMAX, CV_8UC1);
-    imshow("Unwrapped phase", output);
+{ 
 
 }
+
+void PhaseShiftProcess::qualityUnwrap()
+{
+    // Find the max quality
+    double minValue, maxValue;
+    Point minLoc, maxLoc;
+    minMaxLoc(quality, &minValue, &maxValue, &minLoc, &maxLoc);
+    cout << "Min = " << minValue << endl
+         << "Max = " << maxValue << endl;
+    cout << "Min location: " << minLoc << endl
+         << "Max location: " << maxLoc << endl;
+}
+

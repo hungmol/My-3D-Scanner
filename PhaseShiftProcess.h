@@ -4,10 +4,32 @@
 #include <iostream>
 #include "opencv2/highgui.hpp"
 #include "opencv2/core.hpp"
+#include "opencv2/structured_light/graycodepattern.hpp"
 #include "algorithm"
+#include <cmath>
+#include <deque>
+#include <queue>
 
 using namespace std;
 using namespace cv;
+
+struct UnwrapPath {
+    int x;
+    int y;
+    float phi;    // last phase
+    float q;      // phase quality
+
+    UnwrapPath(int x, int y, float phi):
+        x(x),y(y),phi(phi)
+    {}
+
+    UnwrapPath(int x, int y, float phi, float q):
+        x(x),y(y),phi(phi), q(q)
+    {}
+
+    bool operator<(const UnwrapPath & path) const {return q<path.q;}
+
+};
 
 class PhaseShiftProcess
 {
@@ -31,10 +53,9 @@ public:
     void computeQuality_Zhang();
     float getIntensity(Vec3b phi);
 
-//    void phaseUnwrap();
-//    void phaseUnwrap(int x, int y, float phi, float q);
     void unwrapPhase();
-
+    void qualityUnwrap();
+    void showUnwrapped();
 protected:
 
     float sqdist(float v1, float v2)
@@ -65,6 +86,7 @@ private:
     int width;
     int height;
     int step;   // for single channel images
+
 
 };
 

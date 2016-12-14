@@ -14,11 +14,11 @@ int main()
         throw "Error! Can't load image data";
     }
 
-    imshow("Image1", img1);
+    //    imshow("Image1", img1);
     PhaseShiftProcess ps(img1, img2, img3);
     ps.phaseDecode();
-    ps.computeQualityMap();
-    ps.unwrapPhase();
+    ps.computeQuality_Zhang();
+    ps.qualityUnwrap();
     cvWaitKey(0);
 
     return 0;
