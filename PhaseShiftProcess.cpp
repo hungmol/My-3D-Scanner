@@ -178,6 +178,10 @@ void PhaseShiftProcess::qualityUnwrap()
          << "Max = " << maxValue << endl;
     cout << "Min location: " << minLoc << endl
          << "Max location: " << maxLoc << endl;
+    floodFillQ(maxLoc);
+    Mat output;
+    cv::normalize(imgWrappedPhase, output,255, 0, NORM_MINMAX, CV_8UC1);
+    imshow("UNWrapped phase", output);
 }
 
 void PhaseShiftProcess::floodFillQ(Point maxLoc)
@@ -188,8 +192,11 @@ void PhaseShiftProcess::floodFillQ(Point maxLoc)
     int leftX, leftY;
     int centerX, centerY;
 
-    float aboveValue, belowValue, leftValue, rightValue, centerValue;
+    float aboveValue, belowValue, leftValue, rightValue/*, centerValue*/;
 
+
+    centerX = maxLoc.x;
+    centerY = maxLoc.y;
 
     aboveX = centerX;
     aboveY = centerY - 1;
@@ -203,7 +210,7 @@ void PhaseShiftProcess::floodFillQ(Point maxLoc)
     leftX = centerX - 1;
     leftY = centerY;
 
-    centerValue = quality.at<float>(maxLoc);
+//    centerValue = quality.at<float>(maxLoc);
     aboveValue = quality.at<float>(Point(aboveX, aboveY));
     belowValue = quality.at<float>(Point(belowX, belowY));
     leftValue = quality.at<float>(Point(leftX, leftY));
@@ -219,18 +226,28 @@ void PhaseShiftProcess::floodFillQ(Point maxLoc)
     if (minMax.second == aboveValue)
     {
         maxLoc = Point(aboveX, aboveY);
+        quality.at<float>(Point(aboveX, aboveY)) = -1.f;
+        imgWrappedPhase.at<float>(Point(aboveX, aboveY)) = 255;
     }
     else if (minMax.second == belowValue)
     {
         maxLoc = Point(belowX, belowY);
+        quality.at<float>(Point(belowX, belowY)) = -1.f;
+        imgWrappedPhase.at<float>(Point(belowX, belowY)) = 255;
     }
     else if (minMax.second == leftValue)
     {
         maxLoc = Point(leftX, leftY);
+        quality.at<float>(Point(leftX, leftY)) = -1.f;
+        imgWrappedPhase.at<float>(Point(leftX, leftY)) = 255;
     }
     else if (minMax.second == rightValue)
     {
         maxLoc = Point(rightX, rightY);
+        quality.at<float>(Point(rightX, rightY)) = -1.f;
+        imgWrappedPhase.at<float>(Point(rightX, rightY)) = 255;
     }
+
+    floodFillQ(maxLoc);
 }
 
