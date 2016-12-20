@@ -20,7 +20,8 @@ PhaseShiftProcess::PhaseShiftProcess(Mat _imgPhase1, Mat _imgPhase2, Mat _imgPha
     //    mask = Mat::zeros(height, width, CV_8UC1);
     process = Mat::zeros(height, width, CV_8UC1);
     range = Mat::zeros(height, width, CV_32FC1);
-    quality = Mat::zeros(height, width, CV_32FC1);
+    quality = Mat::ones(height, width, CV_32FC1);
+    quality = quality*-1;
 
     noiseThreshold = 0.2;
     zscale = 130;
@@ -77,7 +78,7 @@ void PhaseShiftProcess::phaseDecode()
             if (noise >= noiseThreshold)
             {
                 imgWrappedPhase.at<float>(Point(j, i)) = (float)atan2(sqrt(3)*(phi1 - phi3),(2*phi2 - phi1 - phi3));
-//                cout << imgWrappedPhase.at<float>(Point(j, i)) << endl;
+                //                cout << imgWrappedPhase.at<float>(Point(j, i)) << endl;
             }
             else
             {
@@ -101,7 +102,7 @@ void PhaseShiftProcess::computeQualityMap()
     float phi_left = 0.0f;
     float phi_right = 0.0f;
     float phi_above = 0.0f;
-    float phi_behind = 0.0f;
+    float phi_below = 0.0f;
 
     for (int i = 1; i < height - 1; i++)
     {
@@ -111,7 +112,7 @@ void PhaseShiftProcess::computeQualityMap()
             phi_left = imgWrappedPhase.at<float>(Point(j - 1, i))/(2*PI);
             phi_right = imgWrappedPhase.at<float>(Point(j + 1, i))/(2*PI);
             phi_above = imgWrappedPhase.at<float>(Point(j, i - 1))/(2*PI);
-            phi_behind = imgWrappedPhase.at<float>(Point(j, i + 1))/(2*PI);
+            phi_below = imgWrappedPhase.at<float>(Point(j, i + 1))/(2*PI);
 
             //            float delta = 0.25*(abs(phi_center - phi_left) + abs(phi_center - phi_right)
             //                                           + abs(phi_center - phi_above) + abs(phi_center - phi_behind));
@@ -119,7 +120,7 @@ void PhaseShiftProcess::computeQualityMap()
             quality.at<float>(Point(j, i)) = sqdist(phi_center, phi_above)+
                     sqdist(phi_center,phi_left)+
                     sqdist(phi_center, phi_right)+
-                    sqdist(phi_center, phi_behind);
+                    sqdist(phi_center, phi_below);
             quality.at<float>(Point(j, i)) /= range.at<float>(Point(j, i));
         }
     }
@@ -162,6 +163,9 @@ void PhaseShiftProcess::computeQuality_Zhang()
 void PhaseShiftProcess::unwrapPhase()
 { 
 
+    // create mask with adjoin
+    // boundary case
+
 }
 
 void PhaseShiftProcess::qualityUnwrap()
@@ -174,5 +178,59 @@ void PhaseShiftProcess::qualityUnwrap()
          << "Max = " << maxValue << endl;
     cout << "Min location: " << minLoc << endl
          << "Max location: " << maxLoc << endl;
+}
+
+void PhaseShiftProcess::floodFillQ(Point maxLoc)
+{
+    int aboveX, aboveY;
+    int belowX, belowY;
+    int rightX, rightY;
+    int leftX, leftY;
+    int centerX, centerY;
+
+    float aboveValue, belowValue, leftValue, rightValue, centerValue;
+
+
+    aboveX = centerX;
+    aboveY = centerY - 1;
+
+    belowX = centerX;
+    belowY = centerY + 1;
+
+    rightX = centerX + 1;
+    rightY = centerY;
+
+    leftX = centerX - 1;
+    leftY = centerY;
+
+    centerValue = quality.at<float>(maxLoc);
+    aboveValue = quality.at<float>(Point(aboveX, aboveY));
+    belowValue = quality.at<float>(Point(belowX, belowY));
+    leftValue = quality.at<float>(Point(leftX, leftY));
+    rightValue = quality.at<float>(Point(rightX, rightY));
+
+    if (aboveValue < 0 && belowValue < 0
+            && leftValue < 0 && rightValue < 0)
+    {
+        return;
+    }
+
+    auto minMax = minmax({aboveValue, belowValue, leftValue, rightValue});
+    if (minMax.second == aboveValue)
+    {
+        maxLoc = Point(aboveX, aboveY);
+    }
+    else if (minMax.second == belowValue)
+    {
+        maxLoc = Point(belowX, belowY);
+    }
+    else if (minMax.second == leftValue)
+    {
+        maxLoc = Point(leftX, leftY);
+    }
+    else if (minMax.second == rightValue)
+    {
+        maxLoc = Point(rightX, rightY);
+    }
 }
 

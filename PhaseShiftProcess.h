@@ -56,6 +56,7 @@ public:
     void unwrapPhase();
     void qualityUnwrap();
     void showUnwrapped();
+    void floodFillQ(Point maxLoc);
 protected:
 
     float sqdist(float v1, float v2)

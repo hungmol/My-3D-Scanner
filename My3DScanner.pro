@@ -3,7 +3,7 @@ QT -= gui qt
 
 CONFIG += c++11
 
-TARGET = My3DScanner
+TARGET = My-3D-Scanner
 CONFIG += console
 CONFIG -= app_bundle
 
