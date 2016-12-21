@@ -48,15 +48,8 @@ public:
     void phaseDecode();
     void phaseUnwrapped();
     void convertDepth();
-
-    void computeQualityMap();
-    void computeQuality_Zhang();
     float getIntensity(Vec3b phi);
 
-    void unwrapPhase();
-    void qualityUnwrap();
-    void showUnwrapped();
-    void floodFillQ(Point maxLoc);
 protected:
 
     float sqdist(float v1, float v2)
